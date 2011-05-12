@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Run On</string>
+    <string name="activate_app">Run On Is Deactivated</string>
+    <string name="deactivate_app">Run On Is Activated</string>
+    <string name="help">Press MENU for Run On settings</string>
+    <string name="run_on_enabled">Text messages will be read out.</string>
+    <string name="run_on_disabled">Text messages will not be read out.</string>
+    <string-array name="policies">
+        <item>Only with headset</item>
+        <item>Never with headset</item>
+        <item>Always</item>
+    </string-array>
+    <string-array name="policies_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+</resources>

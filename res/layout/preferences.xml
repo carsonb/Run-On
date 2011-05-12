@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  
+   <PreferenceCategory android:title="Standard Options">
+        <CheckBoxPreference
+                android:key="enable"
+                android:title="Enable Run On"
+                android:defaultValue="true"
+                android:summary="@string/run_on_enabled" />
+
+                
+         <ListPreference
+           android:title="Read messages policy"
+           android:summary="Specify when to read out messages"
+           android:dependency="enable"
+           android:key="runPolicy"
+           android:defaultValue="1"
+           android:entries="@array/policies"
+           android:entryValues="@array/policies_values" />  
+                
+    </PreferenceCategory>
+  
+</PreferenceScreen>
