@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-  xmlns:android="http://schemas.android.com/apk/res/android">
-  
-   <PreferenceCategory android:title="Standard Options">
-        <CheckBoxPreference
-                android:key="enable"
-                android:title="Enable Run On"
-                android:defaultValue="true"
-                android:summary="@string/run_on_enabled" />
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="Standard Options">
+		<CheckBoxPreference
+			android:key="enable"
+			android:title="Enable Run On"
+			android:defaultValue="true"
+			android:summary="@string/run_on_enabled" />
 
                 
-         <ListPreference
-           android:title="Read messages policy"
-           android:summary="Specify when to read out messages"
-           android:dependency="enable"
-           android:key="runPolicy"
-           android:defaultValue="1"
-           android:entries="@array/policies"
-           android:entryValues="@array/policies_values" />  
+		<ListPreference
+			android:title="Read messages policy"
+			android:summary="Specify when to read out messages"
+			android:dependency="enable"
+			android:key="run_policy"
+			android:defaultValue="1"
+			android:entries="@array/run_policies"
+			android:entryValues="@array/run_policies_values" />
+			
+		<ListPreference
+			android:key="say_sender"
+			android:title="Announce sender"
+			android:defaultValue="1"
+			android:summary="Specify if sender name or number is spoken"
+			android:dependency="enable"
+			android:entries="@array/sender_policies"
+			android:entryValues="@array/sender_policies_values" />
+
+		<CheckBoxPreference
+			android:key="say_message"
+			android:title="Speak message"
+			android:defaultValue="true"
+			android:dependency="enable"
+			android:summary="Specify if message is spoken" />
+
+         <Preference
+         	android:title="Test message"
+         	android:summary="Sample incoming text message speech"
+         	android:key="testSpeech" />
                 
     </PreferenceCategory>
   
