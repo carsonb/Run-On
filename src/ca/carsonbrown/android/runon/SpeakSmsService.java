@@ -11,11 +11,9 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.PhoneLookup;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
-import android.telephony.SmsMessage;
 import android.util.Log;
 
-public class SpeakSmsService extends Service implements OnInitListener {
+public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener {
 	
 	private static final String TAG = "SpeakSmsService";
 	
@@ -34,19 +32,22 @@ public class SpeakSmsService extends Service implements OnInitListener {
 		super.onStart(intent, startId);
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (checkPreferences()) {
-			TextToSpeech mTts = new TextToSpeech(getApplicationContext(), this);
 			String message = buildNotificationString(intent.getStringExtra("originatingAddress"), intent.getStringExtra("messageBody"));
-			//speak(message);
 			mMessage = message;
+			mTts = new TextToSpeech(getApplicationContext(), this);
+			while (mTts == null) {
+				
+			}
+			//speak(message);
 		}
 	}
 	
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
 		if (mTts != null) {
 			mTts.shutdown();
 		}
+		super.onDestroy();
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package ca.carsonbrown.android.runon;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,12 +28,13 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	private static final int MENU_SETTINGS = 1;
 	private static final int MENU_ABOUT = 2;
 	
+	private static final int MY_DATA_CHECK_CODE = 23561263;
+	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -42,19 +43,41 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		mToggleActivateButton = (Button) findViewById(R.id.toggle_activate_button);
 		mToggleActivateButton.setOnClickListener(this);
 		
-		TtsProviderFactory ttsProviderImpl = TtsProviderFactory.getInstance();
-		if (ttsProviderImpl != null) {
-		    ttsProviderImpl.init(getApplicationContext());
-		}
+		Intent checkIntent = new Intent();
+        checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
 		
 	}
+	
+	/**
+     * This is the callback from the TTS engine check, if a TTS is installed we
+     * create a new TTS instance (which in turn calls onInit), if not then we will
+     * create an intent to go off and install a TTS engine
+     * @param requestCode int Request code returned from the check for TTS engine.
+     * @param resultCode int Result code returned from the check for TTS engine.
+     * @param data Intent Intent returned from the TTS check.
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == MY_DATA_CHECK_CODE)
+        {
+            if (resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS)
+            {
+                // missing data, install it
+            	//TODO Tell the user that we're going to the Market to get a TTS engine
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            }
+        }
+    }
 	
 	//initialize preferences if they are not already set up
 	private void initPrefs() {
 		if (!mSharedPrefs.contains(APP_ACTIVE)) {
 			//create the preference store
 			mSharedPrefs.edit().putBoolean(APP_ACTIVE, false).commit();
-			//TODO add shared prefs from settings activity
+			//TODO add shared prefs from settings activity?
 			//mSharedPrefs.edit().commit();
 		}
 	}
@@ -86,32 +109,10 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onResume()
-	 */
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		setToggleButtonText();
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		// TODO Auto-generated method stub
-		super.onStart();
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onStop()
-	 */
-	@Override
-	protected void onStop() {
-		// TODO Auto-generated method stub
-		super.onStop();
 	}
 
 	@Override

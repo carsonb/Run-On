@@ -46,6 +46,10 @@ public class Settings extends PreferenceActivity implements OnPreferenceClickLis
 		speakIntent.putExtra("originatingAddress", "5551234");
 		speakIntent.putExtra("messageBody", "This is a test.");
 		getApplicationContext().startService(speakIntent);
+		
+//		Intent settingsIntent = new Intent(getApplicationContext(), SpeakSmsActivity.class);
+//		startActivityForResult(settingsIntent, 0);
+		
 		return true;
 	}
 }

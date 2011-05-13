@@ -9,8 +9,10 @@ package ca.carsonbrown.android.runon;
 
 public final class R {
     public static final class array {
-        public static final int policies=0x7f050000;
-        public static final int policies_values=0x7f050001;
+        public static final int run_policies=0x7f050000;
+        public static final int run_policies_values=0x7f050001;
+        public static final int sender_policies=0x7f050002;
+        public static final int sender_policies_values=0x7f050003;
     }
     public static final class attr {
     }
@@ -32,7 +34,9 @@ public final class R {
         public static final int app_name=0x7f040000;
         public static final int deactivate_app=0x7f040002;
         public static final int help=0x7f040003;
-        public static final int run_on_disabled=0x7f040005;
-        public static final int run_on_enabled=0x7f040004;
+        public static final int menu_about=0x7f040005;
+        public static final int menu_settings=0x7f040004;
+        public static final int run_on_disabled=0x7f040007;
+        public static final int run_on_enabled=0x7f040006;
     }
 }
