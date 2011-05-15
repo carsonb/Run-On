@@ -1,5 +1,7 @@
 package ca.carsonbrown.android.runon;
 
+import java.util.HashMap;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,15 +13,17 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.PhoneLookup;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.util.Log;
 
-public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener {
+public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener, OnUtteranceCompletedListener {
 	
 	private static final String TAG = "SpeakSmsService";
 	
 	private SharedPreferences mSharedPrefs;
 	private TextToSpeech mTts;
 	private String mMessage = null;
+	private boolean mPausedMusic = false;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -143,9 +147,42 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	@Override
 	public void onInit(int status) {
 		if (status == TextToSpeech.SUCCESS && mMessage != null) {
-			mTts.speak(mMessage, TextToSpeech.QUEUE_FLUSH, null);
+			
+			
+			
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + mMessage.hashCode());
+			
+			if (mSharedPrefs.getBoolean("mute_notification", true) || mSharedPrefs.getBoolean("pause_music", false)) {
+				int result = mTts.setOnUtteranceCompletedListener(this);
+				if (result == TextToSpeech.SUCCESS) {
+					//callback worked, so we can unmute notifications when
+					//we're done talking
+					AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+					if (mSharedPrefs.getBoolean("mute_notification", true)) {
+						am.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+					} else if (mSharedPrefs.getBoolean("pause_music", false) && am.isMusicActive()) {
+						mPausedMusic = true;
+						am.setStreamMute(AudioManager.STREAM_MUSIC, true);
+					}
+				}
+			}
+			mTts.setLanguage(mTts.getLanguage());
+			mTts.speak(mMessage, TextToSpeech.QUEUE_FLUSH, params);
 			mMessage=null;
 		}
+	}
+
+	@Override
+	public void onUtteranceCompleted(String utteranceId) {
+		AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		if (mSharedPrefs.getBoolean("mute_notification", true)) {
+			am.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
+		} else if (mSharedPrefs.getBoolean("pause_music", false) && mPausedMusic) {
+			am.setStreamMute(AudioManager.STREAM_MUSIC, false);
+			mPausedMusic = false;
+		}
+			
 	}
 
 }

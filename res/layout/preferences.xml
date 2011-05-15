@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="Standard Options">
+	<PreferenceCategory android:title="@string/announcement_options_title">
 		<CheckBoxPreference
 			android:key="enable"
 			android:title="Enable Run On"
@@ -33,11 +33,34 @@
 			android:defaultValue="true"
 			android:dependency="enable"
 			android:summary="Specify if message is spoken" />
+			
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/audio_options_title">
+			
+		<CheckBoxPreference
+			android:key="mute_notification"
+			android:title="@string/mute_notification_title"
+			android:defaultValue="true"
+			android:summary="@string/mute_notification_summary" />
+			
+		<CheckBoxPreference
+			android:key="pause_music"
+			android:title="@string/pause_music_title"
+			android:defaultValue="false"
+			android:summary="@string/pause_music_summary" />
+	
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/tts_options_title">
 
          <Preference
-         	android:title="Test message"
-         	android:summary="Sample incoming text message speech"
-         	android:key="testSpeech" />
+         	android:title="@string/text_speech_title"
+         	android:summary="@string/text_speech_summary"
+         	android:key="test_speech" />
+         	
+         <Preference
+         	android:title="@string/tts_settings_title"
+         	android:summary="@string/tts_settings_summary"
+         	android:key="tts_settings" />
                 
     </PreferenceCategory>
   
