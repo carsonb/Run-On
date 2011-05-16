@@ -108,11 +108,12 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		}
 		return false;
 	}
-
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//setToggleButtonText();
+		//update button based on changed preference state
+		mToggleActivateButton.setChecked(mSharedPrefs.getBoolean(APP_ACTIVE, true));
 	}
 
 	@Override
@@ -130,14 +131,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 			mSharedPrefs.edit().putBoolean(APP_ACTIVE, false).commit();
 		}
 		Log.v(TAG, "RunOn is now " + mSharedPrefs.getBoolean(APP_ACTIVE, false));
-	}
-	
-	private void setToggleButtonText() {
-		if (mSharedPrefs.getBoolean(APP_ACTIVE, false)) {
-			mToggleActivateButton.setText(R.string.deactivate_app);
-		} else {
-			mToggleActivateButton.setText(R.string.activate_app);
-		}
 	}
 
 }
