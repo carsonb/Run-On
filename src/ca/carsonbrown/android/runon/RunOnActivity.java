@@ -11,7 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ToggleButton;
 
 /**
  * @author Carson Brown carson@carsonbrown.ca
@@ -20,7 +20,7 @@ import android.widget.Button;
 public class RunOnActivity extends Activity implements OnClickListener {
 
 	
-	private Button mToggleActivateButton;
+	private ToggleButton mToggleActivateButton;
 	private SharedPreferences mSharedPrefs;
 	
 	private static final String APP_ACTIVE = "enable";
@@ -40,7 +40,7 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		initPrefs();
 		
-		mToggleActivateButton = (Button) findViewById(R.id.toggle_activate_button);
+		mToggleActivateButton = (ToggleButton) findViewById(R.id.toggle_activate_button);
 		mToggleActivateButton.setOnClickListener(this);
 		
 		Intent checkIntent = new Intent();
@@ -76,7 +76,7 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	private void initPrefs() {
 		if (!mSharedPrefs.contains(APP_ACTIVE)) {
 			//create the preference store
-			mSharedPrefs.edit().putBoolean(APP_ACTIVE, false).commit();
+			mSharedPrefs.edit().putBoolean(APP_ACTIVE, true).commit();
 			//TODO add shared prefs from settings activity?
 			//mSharedPrefs.edit().commit();
 		}
@@ -112,7 +112,7 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		setToggleButtonText();
+		//setToggleButtonText();
 	}
 
 	@Override
@@ -124,12 +124,11 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	}
 	
 	private void toggleApp() {
-		if (!mSharedPrefs.getBoolean(APP_ACTIVE, false)) {
+		if (mToggleActivateButton.isChecked()) {
 			mSharedPrefs.edit().putBoolean(APP_ACTIVE, true).commit();
 		} else {
 			mSharedPrefs.edit().putBoolean(APP_ACTIVE, false).commit();
 		}
-		setToggleButtonText();
 		Log.v(TAG, "RunOn is now " + mSharedPrefs.getBoolean(APP_ACTIVE, false));
 	}
 	
