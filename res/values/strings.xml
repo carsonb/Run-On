@@ -6,6 +6,7 @@
     <string name="help">Press MENU for Run On settings</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_about">About</string>
+    <string name="about_title">About Run On</string>
     <string name="announcement_options_title">Announcement Options</string>
     <string name="run_on_enabled">Text messages will be read out.</string>
     <string name="run_on_disabled">Text messages will not be read out.</string>

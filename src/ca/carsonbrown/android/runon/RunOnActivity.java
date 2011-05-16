@@ -1,8 +1,12 @@
 package ca.carsonbrown.android.runon;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -11,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 /**
@@ -103,8 +108,15 @@ public class RunOnActivity extends Activity implements OnClickListener {
 			startActivityForResult(settingsIntent, 0);
 			return true;
 		case MENU_ABOUT:
-			//TODO open the about activity
-			return true;
+			// Build a dialog, design borrowed from Transdroid
+            AlertDialog.Builder changesDialog = new AlertDialog.Builder(this);
+            changesDialog.setTitle(R.string.about_title);
+            View changes = getLayoutInflater().inflate(R.layout.about, null);
+            ((TextView)changes.findViewById(R.id.runon_version)).setText("Run On " + getVersionNumber(this));
+            changesDialog.setView(changes);
+            changesDialog.create();
+            changesDialog.show();
+            return true;
 		}
 		return false;
 	}
@@ -132,5 +144,16 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		}
 		Log.v(TAG, "RunOn is now " + mSharedPrefs.getBoolean(APP_ACTIVE, false));
 	}
+	
+	public static String getVersionNumber(Context context) {
+        String version = "?";
+        try {
+                PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                version = pi.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, "Package name not found to retrieve version number", e);
+        }
+        return version;
+}
 
 }

@@ -161,9 +161,13 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 					AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 					if (mSharedPrefs.getBoolean("mute_notification", true)) {
 						am.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
-					} else if (mSharedPrefs.getBoolean("pause_music", false) && am.isMusicActive()) {
+					}
+					if (mSharedPrefs.getBoolean("pause_music", false) && am.isMusicActive()) {
 						mPausedMusic = true;
-						am.setStreamMute(AudioManager.STREAM_MUSIC, true);
+						Intent i;
+						i = new Intent("com.android.music.musicservicecommand.togglepause");
+						//i.putExtra("command", "pause");
+						this.sendBroadcast(i);
 					}
 				}
 			}
@@ -178,9 +182,13 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 		if (mSharedPrefs.getBoolean("mute_notification", true)) {
 			am.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
-		} else if (mSharedPrefs.getBoolean("pause_music", false) && mPausedMusic) {
-			am.setStreamMute(AudioManager.STREAM_MUSIC, false);
+		}
+		if (mSharedPrefs.getBoolean("pause_music", false) && mPausedMusic) {
 			mPausedMusic = false;
+			Intent i;
+			i = new Intent("com.android.music.musicservicecommand.togglepause");
+			//i.putExtra("command", "pause");
+			this.sendBroadcast(i);
 		}
 			
 	}
