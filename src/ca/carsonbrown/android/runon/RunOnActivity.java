@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -42,6 +43,10 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		Typeface tf = Typeface.createFromAsset(getAssets(), "khand.ttf");
+		((TextView) findViewById(R.id.help_text)).setTypeface(tf);
+		
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		initPrefs();
 		
