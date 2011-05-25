@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.util.Log;
 
 /**
  * @author Carson Brown carson@carsonbrown.ca

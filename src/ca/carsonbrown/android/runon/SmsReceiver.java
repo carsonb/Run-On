@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
 
 /**
  * @author Carson Brown carson@carsonbrown.ca
@@ -30,17 +29,13 @@ private static final String TAG = "SmsReceiver";
 			messages = new SmsMessage[pdus.length];
 			for (int i = 0; i < messages.length; i++) {
 				messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-				Log.v(TAG, "Got SMS");
 				//is Run On enabled?
 				if (getSharedPreferences(context).getBoolean("enable", false)) {
-					Log.v(TAG, "Sending to service");
 					//send to the SpeakSmsService
 					Intent speakIntent = new Intent(context, SpeakSmsService.class);
 					speakIntent.putExtra("originatingAddress", messages[i].getOriginatingAddress());
 					speakIntent.putExtra("messageBody", messages[i].getMessageBody());
 					context.startService(speakIntent);
-				} else {
-					Log.v(TAG, "NOT sending to service");
 				}
 			}
 		}

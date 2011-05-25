@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.PhoneLookup;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
-import android.util.Log;
 
 public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener, OnUtteranceCompletedListener {
 	
@@ -36,13 +35,15 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		super.onStart(intent, startId);
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (checkPreferences()) {
-			String message = buildNotificationString(intent.getStringExtra("originatingAddress"), intent.getStringExtra("messageBody"));
+			String message = "";
+			try {
+				message = buildNotificationString(intent.getStringExtra("originatingAddress"), intent.getStringExtra("messageBody"));
+			} catch (NullPointerException e) {
+				//error in getting Intent's extra strings, cannot continue
+				return;
+			}
 			mMessage = message;
 			mTts = new TextToSpeech(getApplicationContext(), this);
-			while (mTts == null) {
-				
-			}
-			//speak(message);
 		}
 	}
 	
