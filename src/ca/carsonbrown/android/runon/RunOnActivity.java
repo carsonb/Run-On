@@ -44,9 +44,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-		Typeface tf = Typeface.createFromAsset(getAssets(), "khand.ttf");
-		((TextView) findViewById(R.id.help_text)).setTypeface(tf);
-		
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		initPrefs();
 		
