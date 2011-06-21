@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- FYI: #AARRGGBB -->
+	<color name="transparent">#00000000</color>
+	<color name="white_spacer">#66FFFFFF</color>
+	<color name="actionbar_normal">#ffff6600</color>
+	<color name="actionbar_pressed">#ffcc3300</color>
+	<color name="actionbar_selected">#ffff9933</color>
+</resources>

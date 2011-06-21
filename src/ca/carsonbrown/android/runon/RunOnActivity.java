@@ -7,7 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
+import android.graphics.LinearGradient;
+import android.graphics.PixelFormat;
+import android.graphics.Shader;
+import android.graphics.drawable.PaintDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -16,6 +21,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -42,16 +50,43 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
-		Typeface tf = Typeface.createFromAsset(getAssets(), "khand.ttf");
-		((TextView) findViewById(R.id.help_text)).setTypeface(tf);
+		//Make gradients look less banded
+		getWindow().setFormat(PixelFormat.RGBA_8888);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
+		
+		ShapeDrawable.ShaderFactory sf = new ShapeDrawable.ShaderFactory() {
+            @Override
+            public Shader resize(int width, int height) {
+                return new LinearGradient(0, 0, 0, height,
+                    new int[]{0xff999999, 0xff666666, 0xff333333},
+                    new float[]{0.0f, 0.67f, 1.0f}, Shader.TileMode.REPEAT);
+            }
+        };
+
+        PaintDrawable p = new PaintDrawable();
+        p.setShape(new RectShape());
+        p.setShaderFactory(sf);
+        
+        findViewById(R.id.main_layout).setBackgroundDrawable(p); 
 		
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		initPrefs();
 		
 		mToggleActivateButton = (ToggleButton) findViewById(R.id.toggle_activate_button);
 		mToggleActivateButton.setOnClickListener(this);
+		
+		findViewById(R.id.actionbar_settings).setOnClickListener(
+				new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent settingsIntent = new Intent(getApplicationContext(), Settings.class);
+				startActivityForResult(settingsIntent, 0);
+			}
+		});
 		
 		Intent checkIntent = new Intent();
         checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
