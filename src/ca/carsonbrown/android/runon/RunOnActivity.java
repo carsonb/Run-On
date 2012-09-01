@@ -18,12 +18,12 @@ import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -50,7 +50,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
 		//Make gradients look less banded
@@ -77,16 +76,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		
 		mToggleActivateButton = (ToggleButton) findViewById(R.id.toggle_activate_button);
 		mToggleActivateButton.setOnClickListener(this);
-		
-		findViewById(R.id.actionbar_settings).setOnClickListener(
-				new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Intent settingsIntent = new Intent(getApplicationContext(), Settings.class);
-				startActivityForResult(settingsIntent, 0);
-			}
-		});
 		
 		Intent checkIntent = new Intent();
         checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
@@ -132,9 +121,9 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings).setIcon(R.drawable.ic_menu_preferences).setShortcut('7', 's');
-		menu.add(0, MENU_ABOUT, 0, R.string.menu_about).setIcon(R.drawable.ic_menu_info_details).setShortcut('2', 'a');
-		return true;
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
 	}
 	
 	/* (non-Javadoc)
@@ -143,13 +132,13 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_SETTINGS:
+		case R.id.menu_settings:
 			Intent settingsIntent = new Intent(getApplicationContext(), Settings.class);
 			startActivityForResult(settingsIntent, 0);
 			return true;
-		case MENU_ABOUT:
+		case R.id.menu_about:
 			// Build a dialog, design borrowed from Transdroid
-            AlertDialog.Builder changesDialog = new AlertDialog.Builder(this);
+            AlertDialog.Builder changesDialog = new AlertDialog.Builder(this, android.R.style.Theme_Holo_Dialog);
             changesDialog.setTitle(R.string.about_title);
             View changes = getLayoutInflater().inflate(R.layout.about, null);
             ((TextView)changes.findViewById(R.id.runon_version)).setText("Run On " + getVersionNumber(this));
