@@ -25,11 +25,6 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	private TextToSpeech mTts;
 	private String mMessage = null;
 
-    @Override
-    public void onCreate() {
-
-    }
-
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		int retValue = super.onStartCommand(intent, flags, startId);
@@ -47,6 +42,20 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		}
 		return retValue;
 	}
+
+    @Override
+    public void onDestroy() {
+        if (mTts != null) {
+            mTts.stop();
+            mTts.shutdown();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
 
 	/**
 	 * Check if preferences allow this text message to be announced at all.
@@ -135,7 +144,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 			int result = mTts.setLanguage(locale);
             if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
 			    mTts.speak(mMessage, TextToSpeech.QUEUE_FLUSH, params);
-			    mMessage=null;
+			    mMessage = null;
             }
 		}
 	}
@@ -143,19 +152,4 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
     public void onUtteranceCompleted(String uttId) {
         stopSelf();
     }
-
-    @Override
-    public void onDestroy() {
-        if (mTts != null) {
-            mTts.stop();
-            mTts.shutdown();
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
-    }
-
 }
