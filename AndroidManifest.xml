@@ -4,7 +4,7 @@
     android:versionCode="3"
     android:versionName="1.1.0" >
 
-    <uses-sdk android:minSdkVersion="15" />
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="16"/>
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" >
     </uses-permission>
@@ -26,7 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Settings" >
+        <activity android:name=".SettingsActivity" >
         </activity>
 
         <receiver android:name="ca.carsonbrown.android.runon.SmsReceiver" >

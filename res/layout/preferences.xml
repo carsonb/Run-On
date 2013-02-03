@@ -1,67 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="@string/announcement_options_title">
-		<CheckBoxPreference
-			android:key="enable"
-			android:title="Enable Run On"
-			android:defaultValue="true"
-			android:summary="@string/run_on_enabled" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
-                
-		<ListPreference
-			android:title="Read messages policy"
-			android:summary="Specify when to read out messages"
-			android:dependency="enable"
-			android:key="run_policy"
-			android:defaultValue="1"
-			android:entries="@array/run_policies"
-			android:entryValues="@array/run_policies_values" />
-			
-		<ListPreference
-			android:key="say_sender"
-			android:title="Announce sender"
-			android:defaultValue="1"
-			android:summary="Specify if sender name or number is spoken"
-			android:dependency="enable"
-			android:entries="@array/sender_policies"
-			android:entryValues="@array/sender_policies_values" />
+    <PreferenceCategory android:title="@string/announcement_options_title" >
 
-		<CheckBoxPreference
-			android:key="say_message"
-			android:title="Speak message"
-			android:defaultValue="true"
-			android:dependency="enable"
-			android:summary="Specify if message is spoken" />
-			
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/audio_options_title">
-			
-		<CheckBoxPreference
-			android:key="mute_notification"
-			android:title="@string/mute_notification_title"
-			android:defaultValue="true"
-			android:summary="@string/mute_notification_summary" />
-			
-		<CheckBoxPreference
-			android:key="pause_music"
-			android:title="@string/pause_music_title"
-			android:defaultValue="false"
-			android:summary="@string/pause_music_summary" />
-	
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/tts_options_title">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/enable_key"
+            android:summary="@string/run_on_enabled"
+            android:title="Enable Run On" />
 
-         <Preference
-         	android:title="@string/text_speech_title"
-         	android:summary="@string/text_speech_summary"
-         	android:key="test_speech" />
-         	
-         <Preference
-         	android:title="@string/tts_settings_title"
-         	android:summary="@string/tts_settings_summary"
-         	android:key="tts_settings" />
-                
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="enable"
+            android:entries="@array/run_policies"
+            android:entryValues="@array/run_policies_values"
+            android:key="@string/run_policy_key"
+            android:summary="Specify when to read out messages"
+            android:title="Read messages policy" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="enable"
+            android:entries="@array/sender_policies"
+            android:entryValues="@array/sender_policies_values"
+            android:key="@string/say_sender_key"
+            android:summary="Specify if sender name or number is spoken"
+            android:title="Announce sender" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="enable"
+            android:key="@string/say_message_key"
+            android:summary="Specify if message is spoken"
+            android:title="Speak message" />
     </PreferenceCategory>
-  
+
+    <PreferenceCategory android:title="@string/tts_options_title" >
+
+        <Preference
+            android:key="@string/test_speech_key"
+            android:summary="@string/text_speech_summary"
+            android:title="@string/text_speech_title" />
+
+        <Preference
+            android:key="@string/tts_settings_key"
+            android:summary="@string/tts_settings_summary"
+            android:title="@string/tts_settings_title" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
