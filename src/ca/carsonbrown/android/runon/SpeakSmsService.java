@@ -149,6 +149,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		}
 	}
 
+    @Override
     public void onUtteranceCompleted(String uttId) {
         stopSelf();
     }
