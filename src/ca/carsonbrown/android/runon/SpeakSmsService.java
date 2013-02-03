@@ -133,6 +133,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 			
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + mMessage.hashCode());
+            params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, "" + AudioManager.STREAM_NOTIFICATION);
 
             Locale locale = null;
             //check if default locale works
