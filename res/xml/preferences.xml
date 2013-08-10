@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <PreferenceCategory android:title="@string/announcement_options_title" >
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/enable_key"
+            android:summary="@string/run_on_enabled"
+            android:title="Enable Run On" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="enable"
+            android:entries="@array/run_policies"
+            android:entryValues="@array/run_policies_values"
+            android:key="@string/run_policy_key"
+            android:summary="Specify when to read out messages"
+            android:title="Read messages policy" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="enable"
+            android:entries="@array/sender_policies"
+            android:entryValues="@array/sender_policies_values"
+            android:key="@string/say_sender_key"
+            android:summary="Specify if sender name or number is spoken"
+            android:title="Announce sender" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="enable"
+            android:key="@string/say_message_key"
+            android:summary="Specify if message is spoken"
+            android:title="Speak message" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/tts_options_title" >
+
+        <Preference
+            android:key="@string/test_speech_key"
+            android:summary="@string/text_speech_summary"
+            android:title="@string/text_speech_title" />
+
+        <Preference
+            android:key="@string/tts_settings_key"
+            android:summary="@string/tts_settings_summary"
+            android:title="@string/tts_settings_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
