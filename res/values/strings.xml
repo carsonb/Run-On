@@ -41,7 +41,7 @@
     <string name="tts_settings_title">Change TTS settings</string>
     <string name="tts_settings_summary">Adjust system TTS engine settings.</string>
     <string name="tts_test_number">5551234</string>
-    <string name="tts_test_name">John Dough</string>
+    <string name="tts_test_name">John Dough</string> <!--Hah, "John Doe" is pronounced John Dew-->
     <string name="tts_test_message">Successful test message is successful.</string>
     <string name="tts_settings_unavailable">Text-to-speech settings unavailable</string>
 </resources>
