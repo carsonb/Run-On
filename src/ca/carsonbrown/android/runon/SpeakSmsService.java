@@ -30,6 +30,14 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	private LinkedBlockingDeque<String> mMessages;
     private int mTtsStatus;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mMessages = new LinkedBlockingDeque<String>();
+        mTts = new TextToSpeech(this, this);
+        mTts.setOnUtteranceCompletedListener(this);
+    }
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		int retValue = super.onStartCommand(intent, flags, startId);
@@ -42,14 +50,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 				//error in getting Intent's extra strings, cannot continue
 				return retValue;
 			}
-            if (mMessages == null) {
-                mMessages = new LinkedBlockingDeque<String>();
-            }
             mMessages.add(message);
-            if (mTts == null) {
-                mTts = new TextToSpeech(this, this);
-                mTts.setOnUtteranceCompletedListener(this);
-            }
 		}
 		return retValue;
 	}
@@ -95,10 +96,10 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	
 	private String buildNotificationString(String originatingAddress, String messageBody) {
 		String notificationString = "";
-		notificationString += "New message ";
+		notificationString += "New message";
 		
 		if (!mSharedPrefs.getString("say_sender", "1").equals("3")) {
-			notificationString += "from ";
+			notificationString += " from ";
 			if (mSharedPrefs.getString("say_sender", "1").equals("1")) {
 				notificationString += contactName(originatingAddress);
 			} else {
