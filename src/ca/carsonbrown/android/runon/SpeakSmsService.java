@@ -21,7 +21,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.util.Log;
 
-public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener, OnUtteranceCompletedListener {
+public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener, OnUtteranceCompletedListener, AudioManager.OnAudioFocusChangeListener {
 	
 	private static final String TAG = "SpeakSmsService";
 	
@@ -149,8 +149,11 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
         if (mTtsStatus != TextToSpeech.ERROR && mTtsStatus != TextToSpeech.LANG_MISSING_DATA && mTtsStatus != TextToSpeech.LANG_NOT_SUPPORTED && message != null) {
             HashMap<String, String> params = new HashMap<String, String>();
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + message.hashCode());
-            params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, "" + AudioManager.STREAM_NOTIFICATION);
+            params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_NOTIFICATION));
 
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
             mTtsStatus = mTts.speak(message, TextToSpeech.QUEUE_FLUSH, params);
         }
     }
@@ -175,10 +178,17 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 
     @Override
     public void onUtteranceCompleted(String uttId) {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.abandonAudioFocus(this);
         if (mMessages.size() == 0) {
             stopSelf();
         } else {
             speakMessageFromQueue();
         }
+    }
+
+    @Override
+    public void onAudioFocusChange(int i) {
+        //don't care, doing it anyway
     }
 }
