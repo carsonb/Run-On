@@ -1,6 +1,11 @@
 package ca.carsonbrown.android.runon;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import android.app.Service;
 import android.content.Context;
@@ -14,25 +19,28 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.PhoneLookup;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.util.Log;
 
-public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener, OnUtteranceCompletedListener {
+public class SpeakSmsService extends Service implements TextToSpeech.OnInitListener, OnUtteranceCompletedListener, AudioManager.OnAudioFocusChangeListener {
 	
 	private static final String TAG = "SpeakSmsService";
 	
 	private SharedPreferences mSharedPrefs;
 	private TextToSpeech mTts;
-	private String mMessage = null;
-	private boolean mPausedMusic = false;
-	
-	@Override
-	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	private LinkedBlockingDeque<String> mMessages;
+    private int mTtsStatus;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mMessages = new LinkedBlockingDeque<String>();
+        mTts = new TextToSpeech(this, this);
+        mTts.setOnUtteranceCompletedListener(this);
+    }
 
 	@Override
-	public void onStart(Intent intent, int startId) {
-		super.onStart(intent, startId);
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		int retValue = super.onStartCommand(intent, flags, startId);
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (checkPreferences()) {
 			String message = "";
@@ -40,20 +48,26 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 				message = buildNotificationString(intent.getStringExtra("originatingAddress"), intent.getStringExtra("messageBody"));
 			} catch (NullPointerException e) {
 				//error in getting Intent's extra strings, cannot continue
-				return;
+				return retValue;
 			}
-			mMessage = message;
-			mTts = new TextToSpeech(getApplicationContext(), this);
+            mMessages.add(message);
 		}
+		return retValue;
 	}
-	
-	@Override
-	public void onDestroy() {
-		if (mTts != null) {
-			mTts.shutdown();
-		}
-		super.onDestroy();
-	}
+
+    @Override
+    public void onDestroy() {
+        if (mTts != null) {
+            mTts.stop();
+            mTts.shutdown();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
 
 	/**
 	 * Check if preferences allow this text message to be announced at all.
@@ -63,7 +77,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		//check if the app is enabled at all
 		if (mSharedPrefs.getBoolean("enable", true)) {
 			//check for headset rule
-			int policy = Integer.parseInt(mSharedPrefs.getString("run_policy", "1"));
+			int policy = Integer.parseInt(mSharedPrefs.getString(getString(R.string.run_policy_key), "1"));
 			AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 			boolean headsetEnabled = am.isWiredHeadsetOn() || am.isBluetoothA2dpOn();
 			switch(policy) {
@@ -80,33 +94,12 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		}
 	}
 	
-//	private void speak(String message) {
-//		TtsProviderFactory ttsProviderImpl = TtsProviderFactory.getInstance();
-//		if (ttsProviderImpl != null) {
-//		    ttsProviderImpl.init(getApplicationContext());
-//		    ttsProviderImpl.say(message);
-//		}
-//	}
-	
-
-//	private void getContactFromNumber(String number, Context context) {
-//		Uri phoneUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,
-//				Uri.encode(number));
-//		Cursor phonesCursor = managedQuery(phoneUri, new String[] {PhoneLookup.DISPLAY_NAME}, null, null);
-//		if(phonesCursor != null && phonesCursor.moveToFirst()) {
-//			String displayName = phonesCursor.getString(0); // this is the contact name
-//		}
-//	}
-	
 	private String buildNotificationString(String originatingAddress, String messageBody) {
 		String notificationString = "";
-		notificationString += "New message ";
-
-		
-		//Log.v(TAG, "say_sender:" + mSharedPrefs.getString("say_sender", "1"));
+		notificationString += "New message";
 		
 		if (!mSharedPrefs.getString("say_sender", "1").equals("3")) {
-			notificationString += "from ";
+			notificationString += " from ";
 			if (mSharedPrefs.getString("say_sender", "1").equals("1")) {
 				notificationString += contactName(originatingAddress);
 			} else {
@@ -124,8 +117,8 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	
 	private String contactName(String number) {
 		//short circuit for the Settings activity test message
-		if (number.equals("5551234")) {
-			return "John Doe";
+		if (number.equals(getString(R.string.tts_test_number))) {
+			return getString(R.string.tts_test_name);
 		}
 		/// number is the phone number
 		Uri lookupUri = Uri.withAppendedPath(
@@ -139,59 +132,63 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		      displayName = cur.getString(2);
 		   }
 		} finally {
-		if (cur != null)
-		   cur.close();
+            if (cur != null) {
+               cur.close();
+            }
 		}
 		return displayName;
 	}
 
+    private void speakMessageFromQueue() {
+        String message = null;
+        try {
+            message = mMessages.pop();
+        } catch (NoSuchElementException e) {
+            //Nothing to do
+        }
+        if (mTtsStatus != TextToSpeech.ERROR && mTtsStatus != TextToSpeech.LANG_MISSING_DATA && mTtsStatus != TextToSpeech.LANG_NOT_SUPPORTED && message != null) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + message.hashCode());
+            params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_NOTIFICATION));
+
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+            mTtsStatus = mTts.speak(message, TextToSpeech.QUEUE_FLUSH, params);
+        }
+    }
+
 	@Override
 	public void onInit(int status) {
-		if (status == TextToSpeech.SUCCESS && mMessage != null) {
-			
-			
-			
-			HashMap<String, String> params = new HashMap<String, String>();
-			params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + mMessage.hashCode());
-			
-			if (mSharedPrefs.getBoolean("mute_notification", true) || mSharedPrefs.getBoolean("pause_music", false)) {
-				int result = mTts.setOnUtteranceCompletedListener(this);
-				if (result == TextToSpeech.SUCCESS) {
-					//callback worked, so we can unmute notifications when
-					//we're done talking
-					AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-					if (mSharedPrefs.getBoolean("mute_notification", true)) {
-						am.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
-					}
-					if (mSharedPrefs.getBoolean("pause_music", false) && am.isMusicActive()) {
-						mPausedMusic = true;
-						Intent i;
-						i = new Intent("com.android.music.musicservicecommand.togglepause");
-						//i.putExtra("command", "pause");
-						this.sendBroadcast(i);
-					}
-				}
-			}
-			mTts.setLanguage(mTts.getLanguage());
-			mTts.speak(mMessage, TextToSpeech.QUEUE_FLUSH, params);
-			mMessage=null;
-		}
+        mTtsStatus =  status;
+        if (status == TextToSpeech.SUCCESS) {
+            Locale locale = null;
+            //check if default locale works
+            if (mSharedPrefs.getBoolean(getString(R.string.default_locale_key), false)) {
+                locale = Locale.getDefault();
+            } else {
+                locale = Locale.US;
+            }
+            mTtsStatus = mTts.setLanguage(locale);
+        }
+        speakMessageFromQueue();
+
+
 	}
 
-	@Override
-	public void onUtteranceCompleted(String utteranceId) {
-		AudioManager am = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-		if (mSharedPrefs.getBoolean("mute_notification", true)) {
-			am.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
-		}
-		if (mSharedPrefs.getBoolean("pause_music", false) && mPausedMusic) {
-			mPausedMusic = false;
-			Intent i;
-			i = new Intent("com.android.music.musicservicecommand.togglepause");
-			//i.putExtra("command", "pause");
-			this.sendBroadcast(i);
-		}
-			
-	}
+    @Override
+    public void onUtteranceCompleted(String uttId) {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.abandonAudioFocus(this);
+        if (mMessages.size() == 0) {
+            stopSelf();
+        } else {
+            speakMessageFromQueue();
+        }
+    }
 
+    @Override
+    public void onAudioFocusChange(int i) {
+        //don't care, doing it anyway
+    }
 }
