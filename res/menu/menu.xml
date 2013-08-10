@@ -4,8 +4,4 @@
           android:icon="@drawable/ic_menu_settings"
           android:title="@string/menu_settings"
           android:showAsAction="ifRoom"/>
-    <item android:id="@+id/menu_about"
-          android:icon="@drawable/ic_menu_about"
-          android:title="@string/menu_about"
-          android:showAsAction="never" />
 </menu>

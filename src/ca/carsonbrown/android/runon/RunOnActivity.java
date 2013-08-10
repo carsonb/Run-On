@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,7 +45,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 
 	private static final String TAG = "RunOnActivity";
 	private static final int MENU_SETTINGS = 1;
-	private static final int MENU_ABOUT = 2;
 	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -144,16 +144,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 			Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
 			startActivityForResult(settingsIntent, 0);
 			return true;
-		case R.id.menu_about:
-			// Build a dialog, design borrowed from Transdroid
-            AlertDialog.Builder changesDialog = new AlertDialog.Builder(this, android.R.style.Theme_Holo_Dialog);
-            changesDialog.setTitle(R.string.about_title);
-            View changes = getLayoutInflater().inflate(R.layout.about, null);
-            ((TextView)changes.findViewById(R.id.runon_version)).setText("Run On " + getVersionNumber(this));
-            changesDialog.setView(changes);
-            changesDialog.create();
-            changesDialog.show();
-            return true;
 		}
 		return false;
 	}

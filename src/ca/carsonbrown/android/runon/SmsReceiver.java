@@ -45,7 +45,7 @@ private static final String TAG = "SmsReceiver";
 		String packageName = 
 		context.getPackageName();
 		Resources res = context.getResources();
-		String entryName = res.getResourceEntryName(R.layout.preferences);
+		String entryName = res.getResourceEntryName(R.xml.preferences);
 		return context.getSharedPreferences(packageName+"_"+entryName, 0);
 	}
 

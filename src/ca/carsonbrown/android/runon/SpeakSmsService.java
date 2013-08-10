@@ -1,7 +1,11 @@
 package ca.carsonbrown.android.runon;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import android.app.Service;
 import android.content.Context;
@@ -23,7 +27,8 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	
 	private SharedPreferences mSharedPrefs;
 	private TextToSpeech mTts;
-	private String mMessage = null;
+	private LinkedBlockingDeque<String> mMessages;
+    private int mTtsStatus;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -37,8 +42,14 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 				//error in getting Intent's extra strings, cannot continue
 				return retValue;
 			}
-			mMessage = message;
-            mTts = new TextToSpeech(this, this);
+            if (mMessages == null) {
+                mMessages = new LinkedBlockingDeque<String>();
+            }
+            mMessages.add(message);
+            if (mTts == null) {
+                mTts = new TextToSpeech(this, this);
+                mTts.setOnUtteranceCompletedListener(this);
+            }
 		}
 		return retValue;
 	}
@@ -127,14 +138,26 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 		return displayName;
 	}
 
-	@Override
-	public void onInit(int status) {
-		if (status == TextToSpeech.SUCCESS && mMessage != null) {
-			
-			HashMap<String, String> params = new HashMap<String, String>();
-			params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + mMessage.hashCode());
+    private void speakMessageFromQueue() {
+        String message = null;
+        try {
+            message = mMessages.pop();
+        } catch (NoSuchElementException e) {
+            //Nothing to do
+        }
+        if (mTtsStatus != TextToSpeech.ERROR && mTtsStatus != TextToSpeech.LANG_MISSING_DATA && mTtsStatus != TextToSpeech.LANG_NOT_SUPPORTED && message != null) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + message.hashCode());
             params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, "" + AudioManager.STREAM_NOTIFICATION);
 
+            mTtsStatus = mTts.speak(message, TextToSpeech.QUEUE_FLUSH, params);
+        }
+    }
+
+	@Override
+	public void onInit(int status) {
+        mTtsStatus =  status;
+        if (status == TextToSpeech.SUCCESS) {
             Locale locale = null;
             //check if default locale works
             if (mSharedPrefs.getBoolean(getString(R.string.default_locale_key), false)) {
@@ -142,16 +165,19 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
             } else {
                 locale = Locale.US;
             }
-			int result = mTts.setLanguage(locale);
-            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
-			    mTts.speak(mMessage, TextToSpeech.QUEUE_FLUSH, params);
-			    mMessage = null;
-            }
-		}
+            mTtsStatus = mTts.setLanguage(locale);
+        }
+        speakMessageFromQueue();
+
+
 	}
 
     @Override
     public void onUtteranceCompleted(String uttId) {
-        stopSelf();
+        if (mMessages.size() == 0) {
+            stopSelf();
+        } else {
+            speakMessageFromQueue();
+        }
     }
 }

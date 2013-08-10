@@ -15,6 +15,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
+import android.widget.Toast;
 
 /**
  * @author Carson Brown carson@carsonbrown.ca
@@ -31,7 +32,7 @@ public class SettingsFragment extends PreferenceFragment implements OnPreference
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.layout.preferences);
+		addPreferencesFromResource(R.xml.preferences);
 		
 		//Listeners for special actions
 		mTestSpeech = (Preference) findPreference(getString(R.string.test_speech_key));
@@ -104,7 +105,11 @@ public class SettingsFragment extends PreferenceFragment implements OnPreference
 			Intent intent = new Intent();
             intent.setAction("com.android.settings.TTS_SETTINGS");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(intent);
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                this.startActivity(intent);
+            } else {
+                Toast.makeText(getActivity(), R.string.tts_settings_unavailable, Toast.LENGTH_SHORT).show();
+            }
 		}
 		return true;
 	}
