@@ -149,10 +149,10 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
         if (mTtsStatus != TextToSpeech.ERROR && mTtsStatus != TextToSpeech.LANG_MISSING_DATA && mTtsStatus != TextToSpeech.LANG_NOT_SUPPORTED && message != null) {
             HashMap<String, String> params = new HashMap<String, String>();
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "" + message.hashCode());
-            params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_NOTIFICATION));
+            params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
 
             AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
+            int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
             mTtsStatus = mTts.speak(message, TextToSpeech.QUEUE_FLUSH, params);
         }
