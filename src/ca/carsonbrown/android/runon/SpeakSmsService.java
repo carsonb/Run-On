@@ -40,6 +40,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.v(TAG, "Warming up SMS Speaker");
 		int retValue = super.onStartCommand(intent, flags, startId);
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (checkPreferences()) {
@@ -61,6 +62,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
             mTts.stop();
             mTts.shutdown();
         }
+        Log.v(TAG, "Shutting down SMS Speaker");
         super.onDestroy();
     }
 
@@ -155,6 +157,9 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
             int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
             mTtsStatus = mTts.speak(message, TextToSpeech.QUEUE_FLUSH, params);
+            Log.v(TAG, "Speaking SMS: " + mTtsStatus);
+        } else {
+            Log.v(TAG, "Failed to speak SMS");
         }
     }
 
@@ -172,12 +177,11 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
             mTtsStatus = mTts.setLanguage(locale);
         }
         speakMessageFromQueue();
-
-
 	}
 
     @Override
     public void onUtteranceCompleted(String uttId) {
+        Log.v(TAG, "Completed TTS utterance");
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.abandonAudioFocus(this);
         if (mMessages.size() == 0) {
