@@ -191,7 +191,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
         Log.v(TAG, "Completed TTS utterance");
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.abandonAudioFocus(this);
-        if (mMessages.size() == 0) {
+        if (mMessages == null || mMessages.size() == 0) {
             stopSelf();
         } else {
             speakMessageFromQueue();
