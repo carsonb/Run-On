@@ -6,6 +6,7 @@ package ca.carsonbrown.android.runon;
 import java.util.Arrays;
 import java.util.List;
 
+import android.app.backup.BackupManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -126,5 +127,8 @@ public class SettingsFragment extends PreferenceFragment implements OnPreference
 		} else if (key.equals(getString(R.string.say_message_key))) {
 			updateSayMessagePreference();
 		}
+
+        BackupManager bm = new BackupManager(getActivity());
+        bm.dataChanged();
 	}
 }

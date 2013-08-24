@@ -2,6 +2,7 @@ package ca.carsonbrown.android.runon;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -108,6 +109,8 @@ public class RunOnActivity extends Activity implements OnClickListener {
                 Log.v(TAG, "Checking if default locale works for TTS: " + (success ? "YES" : "NO"));
                 mSharedPrefs.edit().putBoolean(getString(R.string.default_locale_key), success);
                 mSharedPrefs.edit().commit();
+                BackupManager bm = new BackupManager(RunOnActivity.this);
+                bm.dataChanged();
 
                 mTts.stop();
                 mTts.shutdown();
@@ -170,6 +173,9 @@ public class RunOnActivity extends Activity implements OnClickListener {
 			mSharedPrefs.edit().putBoolean(getString(R.string.enable_key), false).commit();
 		}
 		Log.v(TAG, "RunOn is now " + mSharedPrefs.getBoolean(getString(R.string.enable_key), false));
+
+        BackupManager bm = new BackupManager(this);
+        bm.dataChanged();
 	}
 	
 	public static String getVersionNumber(Context context) {
