@@ -30,20 +30,17 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	private LinkedBlockingDeque<String> mMessages;
     private int mTtsStatus;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        mMessages = new LinkedBlockingDeque<String>();
-        mTts = new TextToSpeech(this, this);
-        mTts.setOnUtteranceCompletedListener(this);
-    }
-
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.v(TAG, "Warming up SMS Speaker");
+        Log.v(TAG, "Starting up from message");
 		int retValue = super.onStartCommand(intent, flags, startId);
-		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (checkPreferences()) {
+            if (mMessages == null) {
+                mMessages = new LinkedBlockingDeque<String>();
+            }
+
 			String message = "";
 			try {
 				message = buildNotificationString(intent.getStringExtra("originatingAddress"), intent.getStringExtra("messageBody"));
@@ -52,7 +49,17 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 				return retValue;
 			}
             mMessages.add(message);
-		}
+            Log.v(TAG, "Added message to queue");
+
+            if (mTts == null) {
+                Log.v(TAG, "Creating new TTS");
+                mTts = new TextToSpeech(this, this);
+                mTts.setOnUtteranceCompletedListener(this);
+            }
+		} else {
+            stopSelf();
+        }
+
 		return retValue;
 	}
 
@@ -146,7 +153,7 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
         try {
             message = mMessages.pop();
         } catch (NoSuchElementException e) {
-            //Nothing to do
+            //Nothing to do, null messages are handled later
         }
         if (mTtsStatus != TextToSpeech.ERROR && mTtsStatus != TextToSpeech.LANG_MISSING_DATA && mTtsStatus != TextToSpeech.LANG_NOT_SUPPORTED && message != null) {
             HashMap<String, String> params = new HashMap<String, String>();
@@ -157,9 +164,9 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
             int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
             mTtsStatus = mTts.speak(message, TextToSpeech.QUEUE_FLUSH, params);
-            Log.v(TAG, "Speaking SMS: " + mTtsStatus);
+            Log.v(TAG, "Speaking SMS: " + (mTtsStatus == TextToSpeech.SUCCESS ? "success" : "failure"));
         } else {
-            Log.v(TAG, "Failed to speak SMS");
+            Log.v(TAG, "Error on SMS: " + mTtsStatus);
         }
     }
 
