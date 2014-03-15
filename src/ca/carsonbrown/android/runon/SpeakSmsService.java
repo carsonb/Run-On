@@ -1,9 +1,6 @@
 package ca.carsonbrown.android.runon;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -174,16 +171,8 @@ public class SpeakSmsService extends Service implements TextToSpeech.OnInitListe
 	public void onInit(int status) {
         mTtsStatus =  status;
         if (status == TextToSpeech.SUCCESS) {
-            Locale locale = null;
-            //check if default locale works
-            if (mSharedPrefs.getBoolean(getString(R.string.default_locale_key), false)) {
-                locale = Locale.getDefault();
-            } else {
-                locale = Locale.US;
-            }
-            mTtsStatus = mTts.setLanguage(locale);
+            speakMessageFromQueue();
         }
-        speakMessageFromQueue();
 	}
 
     @Override

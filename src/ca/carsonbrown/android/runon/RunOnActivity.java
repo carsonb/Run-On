@@ -1,7 +1,6 @@
 package ca.carsonbrown.android.runon;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.Intent;
@@ -16,22 +15,13 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 
 /**
  * @author Carson Brown carson@carsonbrown.ca
@@ -42,7 +32,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 	
 	private ToggleButton mToggleActivateButton;
 	private SharedPreferences mSharedPrefs;
-    private TextToSpeech mTts;
 
 	private static final String TAG = "RunOnActivity";
 	private static final int MENU_SETTINGS = 1;
@@ -57,7 +46,6 @@ public class RunOnActivity extends Activity implements OnClickListener {
 		
 		//Make gradients look less banded
 		getWindow().setFormat(PixelFormat.RGBA_8888);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
 		
 		ShapeDrawable.ShaderFactory sf = new ShapeDrawable.ShaderFactory() {
             @Override
@@ -71,51 +59,14 @@ public class RunOnActivity extends Activity implements OnClickListener {
         PaintDrawable p = new PaintDrawable();
         p.setShape(new RectShape());
         p.setShaderFactory(sf);
-        
-        findViewById(R.id.main_layout).setBackgroundDrawable(p); 
+
+        findViewById(R.id.main_layout).setBackground(p);
 		
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		initPrefs();
 		
 		mToggleActivateButton = (ToggleButton) findViewById(R.id.toggle_activate_button);
 		mToggleActivateButton.setOnClickListener(this);
-
-
-        //check if the current tts lang requires a download
-		checkTTSLang();
-	}
-
-    private void checkTTSLang() {
-        mTts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                boolean success = false;
-                if (status == TextToSpeech.SUCCESS) {
-                    Locale locale = Locale.getDefault();
-                    switch (mTts.isLanguageAvailable(locale)) {
-                        case TextToSpeech.LANG_AVAILABLE:
-                        case TextToSpeech.LANG_COUNTRY_AVAILABLE:
-                        case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
-                            success = true;
-                            break;
-                        case TextToSpeech.LANG_MISSING_DATA:
-                        case TextToSpeech.LANG_NOT_SUPPORTED:
-                        default:
-                            success = false;
-                            break;
-                    }
-                }
-                //If we can use the default locale, awesome, otherwise, we'll just use US english
-                Log.v(TAG, "Checking if default locale works for TTS: " + (success ? "YES" : "NO"));
-                mSharedPrefs.edit().putBoolean(getString(R.string.default_locale_key), success);
-                mSharedPrefs.edit().commit();
-                BackupManager bm = new BackupManager(RunOnActivity.this);
-                bm.dataChanged();
-
-                mTts.stop();
-                mTts.shutdown();
-            }
-        });
     }
 	
 	//initialize preferences if they are not already set up
