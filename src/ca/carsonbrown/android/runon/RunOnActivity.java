@@ -60,7 +60,7 @@ public class RunOnActivity extends Activity implements OnClickListener {
         p.setShape(new RectShape());
         p.setShaderFactory(sf);
 
-        findViewById(R.id.main_layout).setBackground(p);
+        findViewById(R.id.main_layout).setBackgroundDrawable(p);
 		
 		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		initPrefs();
