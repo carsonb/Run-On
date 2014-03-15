@@ -21,3 +21,8 @@ project.properties
 *.iml
 /classes/
 /.idea/
+/.gradle/
+
+/build/
+
+proguard_logs*
